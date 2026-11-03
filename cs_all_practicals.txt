@@ -1,0 +1,662 @@
+Computer Science — Data Structures Practicals
+Languages: Python 3
+
+========================================================================
+1. Library borrowing statistics
+Source: 01_library_statistics.py
+========================================================================
+
+library_data = {
+    "M001": ["Book A", "Book B"],
+    "M002": ["Book C"],
+    "M003": [],
+    "M004": ["Book A", "Book A"],
+    "M005": [],
+    "M006": ["Book B", "Book D"]
+
+}
+total_members = len(library_data)
+total_books_borrowed = sum(len(books) for books in library_data.values())
+average = total_books_borrowed / total_members
+print("Average books borrowed:", average)
+all_books = []
+for books in library_data.values():
+    all_books.extend(books)
+
+book_counts = {}
+for book in all_books:
+    if book in book_counts:
+        book_counts[book] += 1
+    else:
+        book_counts[book] = 1
+
+most_borrowed = max(book_counts, key=book_counts.get)
+print("Most borrowed book:", most_borrowed)
+least_borrowed = min(book_counts, key=book_counts.get)
+print("Least borrowed book:", least_borrowed)
+zero_borrowers = sum(1 for books in library_data.values() if len(books) == 0)
+print("Members with 0 borrowings:", zero_borrowers)
+print("Most frequently borrowed book (mode):", most_borrowed)
+
+
+========================================================================
+2. Linear and binary search
+Source: 02_linear_and_binary_search.py
+========================================================================
+
+customer_ids = [102, 205, 150, 123, 301, 110, 175]
+
+def linear_search(customer_list, target_id):
+    for i in range(len(customer_list)):
+        if customer_list[i] == target_id:
+            return True
+    return False
+
+def binary_search(sorted_list, target_id):
+    low = 0
+    high = len(sorted_list) - 1
+    while low <= high:
+        mid = (low + high) // 2
+        if sorted_list[mid] == target_id:
+            return True
+        elif sorted_list[mid] < target_id:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return False
+
+search_id = int(input("Enter Customer ID to search: "))
+found_linear = linear_search(customer_ids, search_id)
+print("Linear Search: Found" if found_linear else "Linear Search: Not Found")
+sorted_ids = sorted(customer_ids)
+found_binary = binary_search(sorted_ids, search_id)
+print("Binary Search: Found" if found_binary else "Binary Search: Not Found")
+
+
+========================================================================
+3. Salary sorting
+Source: 03_selection_and_bubble_sort.py
+========================================================================
+
+salaries = [45000.75, 52000.0, 39000.3, 61000.8, 47000.25, 88000.0,
+    73000.45, 59000.1]
+
+def selection_sort(arr):
+    n = len(arr)
+    sorted_arr = arr.copy()
+    for i in range(n):
+        min_index = i
+        for j in range(i+1, n):
+            if sorted_arr[j] < sorted_arr[min_index]:
+                min_index = j
+        sorted_arr[i], sorted_arr[min_index] = sorted_arr[min_index], sorted_arr[i]
+    return sorted_arr
+
+def bubble_sort(arr):
+    n = len(arr)
+    sorted_arr = arr.copy()
+    for i in range(n):
+        for j in range(0, n - i - 1):
+            if sorted_arr[j] > sorted_arr[j + 1]:
+                sorted_arr[j], sorted_arr[j + 1] = sorted_arr[j + 1], sorted_arr[j]
+    return sorted_arr
+
+def display_top_5(salary_list):
+    top_5 = salary_list[-5:][::-1]
+    print("Top 5 Highest Salaries:")
+    for i, salary in enumerate(top_5, 1):
+        print(f"{i}. ₹{salary:.2f}")
+
+print("Original Salaries:")
+print(salaries)
+sel_sorted = selection_sort(salaries)
+print("\nSalaries Sorted (Selection Sort):")
+print(sel_sorted)
+display_top_5(sel_sorted)
+bub_sorted = bubble_sort(salaries)
+print("\nSalaries Sorted (Bubble Sort):")
+print(bub_sorted)
+display_top_5(bub_sorted)
+
+
+========================================================================
+4. Stack: undo and redo
+Source: 04_stack_undo_redo.py
+========================================================================
+
+class TextEditor:
+
+    def __init__(self):
+        self.document = ""
+        self.undo_stack = []
+        self.redo_stack = []
+
+    def make_change(self, change):
+        self.undo_stack.append(self.document)
+        self.document += change
+        self.redo_stack.clear()
+        print("\nChange made.")
+        self.display_state()
+
+    def undo_action(self):
+        if self.undo_stack:
+            self.redo_stack.append(self.document)
+            self.document = self.undo_stack.pop()
+            print("\nUndo performed.")
+        else:
+            print("\nNo more actions to undo.")
+        self.display_state()
+
+    def redo_action(self):
+        if self.redo_stack:
+            self.undo_stack.append(self.document)
+            self.document = self.redo_stack.pop()
+            print("\nRedo performed.")
+        else:
+            print("\nNo more actions to redo.")
+        self.display_state()
+
+    def display_state(self):
+        print("Current Document State: '" + self.document + "'")
+
+    def run_editor(self):
+        while True:
+            print("\n--- MENU ---")
+            print("1. Make a Change")
+            print("2. Undo")
+            print("3. Redo")
+            print("4. Display Document State")
+            print("5. Exit")
+            choice = input("Enter your choice: ")
+            if choice == '1':
+                change = input("Enter text to add: ")
+                self.make_change(change)
+            elif choice == '2':
+                self.undo_action()
+            elif choice == '3':
+                self.redo_action()
+            elif choice == '4':
+                self.display_state()
+            elif choice == '5':
+                print("Exiting...")
+                break
+            else:
+                print("Invalid choice. Try again.")
+
+editor = TextEditor()
+editor.run_editor()
+
+
+========================================================================
+5. Queue: event processing
+Source: 05_queue_event_processing.py
+========================================================================
+
+event_queue = []
+
+def add_event(event):
+    event_queue.append(event)
+    print(f"Event '{event}' added to the queue.")
+
+def process_next_event():
+    if event_queue:
+        event = event_queue.pop(0)
+        print(f"Processed event: '{event}'")
+    else:
+        print("No events to process.")
+
+def display_pending_events():
+    if event_queue:
+        print("Pending Events:")
+        for idx, event in enumerate(event_queue, 1):
+            print(f"{idx}. {event}")
+    else:
+        print("No pending events.")
+
+def cancel_event(event_name):
+    if event_name in event_queue:
+        event_queue.remove(event_name)
+        print(f"Event '{event_name}' has been canceled.")
+    else:
+        print(f"Event '{event_name}' not found or already processed.")
+
+def menu():
+    while True:
+        print("\n--- EVENT MENU ---")
+        print("1. Add Event")
+        print("2. Process Next Event")
+        print("3. Display Pending Events")
+        print("4. Cancel an Event")
+        print("5. Exit")
+        choice = input("Enter your choice: ")
+        if choice == '1':
+            event = input("Enter event name: ")
+            add_event(event)
+        elif choice == '2':
+            process_next_event()
+        elif choice == '3':
+            display_pending_events()
+        elif choice == '4':
+            event_name = input("Enter event name to cancel: ")
+            cancel_event(event_name)
+        elif choice == '5':
+            print("Exiting Event Processing System.")
+            break
+        else:
+            print("Invalid choice. Please enter a number between 1 and 5.")
+
+menu()
+
+
+========================================================================
+6. Linked list: student records
+Source: 06_linked_list_student_records.py
+========================================================================
+
+class StudentNode:
+
+    def __init__(self, roll_no, name, marks):
+        self.roll_no = roll_no
+        self.name = name
+        self.marks = marks
+        self.next = None
+
+class StudentLinkedList:
+
+    def __init__(self):
+        self.head = None
+
+    def add_student(self, roll_no, name, marks):
+        new_node = StudentNode(roll_no, name, marks)
+        if self.head is None:
+            self.head = new_node
+        else:
+            current = self.head
+            while current.next:
+                current = current.next
+            current.next = new_node
+        print("✅ Student record added.")
+
+    def delete_student(self, roll_no):
+        current = self.head
+        prev = None
+        while current:
+            if current.roll_no == roll_no:
+                if prev:
+                    prev.next = current.next
+                else:
+                    self.head = current.next
+                print("✅ Student record deleted.")
+                return
+            prev = current
+            current = current.next
+        print("⚠️ Student not found.")
+
+    def update_student(self, roll_no, new_name, new_marks):
+        current = self.head
+        while current:
+            if current.roll_no == roll_no:
+                current.name = new_name
+                current.marks = new_marks
+                print("✅ Student record updated.")
+                return
+            current = current.next
+        print("⚠️ Student not found.")
+
+    def search_student(self, roll_no):
+        current = self.head
+        while current:
+            if current.roll_no == roll_no:
+                print(f"🔍 Found: Roll No: {current.roll_no}, Name: {current.name}, Marks: {current.marks}")
+                return
+            current = current.next
+        print("⚠️ Student not found.")
+
+    def display_students(self, sort_by="roll_no", ascending=True):
+        students = []
+        current = self.head
+        while current:
+            students.append((current.roll_no, current.name, current.marks))
+            current = current.next
+        if sort_by == "roll_no":
+            students.sort(key=lambda x: x[0], reverse=not ascending)
+        elif sort_by == "marks":
+            students.sort(key=lambda x: x[2], reverse=not ascending)
+        if not students:
+            print("⚠️ No records to display.")
+            return
+        print("\n📋 Student Records:")
+        for s in students:
+            print(f"Roll No: {s[0]}, Name: {s[1]}, Marks: {s[2]}")
+
+def menu():
+    system = StudentLinkedList()
+    while True:
+        print("\n--- Student Record Management Menu ---")
+        print("1. Add Student")
+        print("2. Delete Student")
+        print("3. Update Student")
+        print("4. Search Student")
+        print("5. Display All Students")
+        print("6. Exit")
+        choice = input("Enter your choice (1-6): ")
+        if choice == '1':
+            roll = int(input("Enter Roll No: "))
+            name = input("Enter Name: ")
+            marks = int(input("Enter Marks: "))
+            system.add_student(roll, name, marks)
+        elif choice == '2':
+            roll = int(input("Enter Roll No to Delete: "))
+            system.delete_student(roll)
+        elif choice == '3':
+            roll = int(input("Enter Roll No to Update: "))
+            name = input("Enter New Name: ")
+            marks = int(input("Enter New Marks: "))
+            system.update_student(roll, name, marks)
+        elif choice == '4':
+            roll = int(input("Enter Roll No to Search: "))
+            system.search_student(roll)
+        elif choice == '5':
+            sort_key = input("Sort by 'roll_no' or 'marks': ").strip()
+            order = input("Order 'asc' or 'desc': ").strip()
+            ascending = True if order == 'asc' else False
+            system.display_students(sort_by=sort_key, ascending=ascending)
+        elif choice == '6':
+            print("👋 Exiting Student Record Management System.")
+            break
+        else:
+            print("❌ Invalid choice. Try again.")
+
+menu()
+
+
+========================================================================
+7. Hash table with chaining
+Source: 07_hash_table_chaining.py
+========================================================================
+
+class HashTable:
+
+    def __init__(self, size=10):
+        self.size = size
+        self.table = [[] for _ in range(size)]
+
+    def _hash_function(self, key):
+        return key % self.size
+
+    def insert(self, key, value):
+        index = self._hash_function(key)
+        for pair in self.table[index]:
+            if pair[0] == key:
+                pair[1] = value
+                print(f"Updated key {key} with value {value}")
+                return
+        self.table[index].append([key, value])
+        print(f"Inserted key {key} with value {value}")
+
+    def search(self, key):
+        index = self._hash_function(key)
+        for pair in self.table[index]:
+            if pair[0] == key:
+                return pair[1]
+        return None
+
+    def delete(self, key):
+        index = self._hash_function(key)
+        for i, pair in enumerate(self.table[index]):
+            if pair[0] == key:
+                del self.table[index][i]
+                print(f"Deleted key {key}")
+                return
+        print(f"Key {key} not found for deletion.")
+
+    def display(self):
+        print("Hash Table:")
+        for i, bucket in enumerate(self.table):
+            print(f"Index {i}: {bucket}")
+
+ht = HashTable()
+ht.insert(15, "apple")
+ht.insert(25, "banana")
+ht.insert(35, "cherry")
+print("Search 25:", ht.search(25))
+ht.delete(25)
+print("Search 25 after deletion:", ht.search(25))
+ht.display()
+
+
+========================================================================
+8. Hash table with linear probing
+Source: 08_hash_table_linear_probing.py
+========================================================================
+
+class LinearProbingHashTable:
+
+    def __init__(self, size=10):
+        self.size = size
+        self.table = [None] * size
+        self.DELETED = "<DELETED>"
+
+    def _hash_function(self, key):
+        return key % self.size
+
+    def insert(self, key):
+        index = self._hash_function(key)
+        original_index = index
+        while self.table[index] not in (None, self.DELETED):
+            if self.table[index] == key:
+                print(f"Key {key} already exists at index {index}.")
+                return
+            index = (index + 1) % self.size
+            if index == original_index:
+                print("Hash table is full. Cannot insert.")
+                return
+        self.table[index] = key
+        print(f"Inserted key {key} at index {index}.")
+
+    def search(self, key):
+        index = self._hash_function(key)
+        original_index = index
+        while self.table[index] is not None:
+            if self.table[index] == key:
+                print(f"Key {key} found at index {index}.")
+                return index
+            index = (index + 1) % self.size
+            if index == original_index:
+                break
+        print(f"Key {key} not found.")
+        return None
+
+    def delete(self, key):
+        index = self.search(key)
+        if index is not None:
+            self.table[index] = self.DELETED
+            print(f"Key {key} deleted from index {index}.")
+
+    def display(self):
+        print("Hash Table:")
+        for i, key in enumerate(self.table):
+            print(f"Index {i}: {key}")
+
+ht = LinearProbingHashTable()
+ht.insert(10)
+ht.insert(20)
+ht.insert(30)
+ht.insert(20)
+ht.display()
+ht.search(20)
+ht.search(99)
+ht.delete(20)
+ht.search(20)
+ht.display()
+
+
+========================================================================
+9. Graph traversal: BFS and DFS
+Source: 09_graph_bfs_dfs.py
+========================================================================
+
+from collections import deque
+locations = ['A', 'B', 'C', 'D']
+location_index = {name: idx for idx, name in enumerate(locations)}
+adj_matrix = [
+    [ 0, 1, 1, 0],
+    [ 1, 0, 0, 1],
+    [ 1, 0, 0, 1],
+    [ 0, 1, 1, 0]
+
+]
+
+def dfs_matrix(start):
+    visited = [False] * len(locations)
+    result = []
+
+    def dfs(node):
+        visited[node] = True
+        result.append(locations[node])
+        for neighbor in range(len(adj_matrix)):
+            if adj_matrix[node][neighbor] == 1 and not visited[neighbor]:
+                dfs(neighbor)
+    dfs(location_index[start])
+    return result
+
+adj_list = {
+    'A': ['B', 'C'],
+    'B': ['A', 'D'],
+    'C': ['A', 'D'],
+    'D': ['B', 'C']
+
+}
+
+def bfs_list(start):
+    visited = set()
+    queue = deque([start])
+    result = []
+    while queue:
+        node = queue.popleft()
+        if node not in visited:
+            visited.add(node)
+            result.append(node)
+            for neighbor in adj_list[node]:
+                if neighbor not in visited:
+                    queue.append(neighbor)
+    return result
+
+def menu():
+    print("\n===== Menu =====")
+    print("1. DFS")
+    print("2. BFS")
+    print("3. Exit")
+
+while True:
+    menu()
+    choice = input("Enter your choice: ")
+    if choice == '1':
+        start_location = 'A'
+        dfs_result = dfs_matrix(start_location)
+        print("DFS Traversal (using adjacency matrix):", dfs_result)
+    if choice == '2':
+        start_location = 'A'
+        bfs_result = bfs_list(start_location)
+        print("BFS Traversal (using adjacency list):", bfs_result)
+    if choice == '3':
+        break
+
+
+========================================================================
+10. Binary search tree
+Source: 10_binary_search_tree.py
+========================================================================
+
+class Node:
+
+    def __init__(self, key):
+        self.key = key
+        self.left = None
+        self.right = None
+
+class BST:
+
+    def __init__(self):
+        self.root = None
+
+    def insert(self, root, key):
+        if root is None:
+            return Node(key)
+        if key < root.key:
+            root.left = self.insert(root.left, key)
+        elif key > root.key:
+            root.right = self.insert(root.right, key)
+        return root
+
+    def search(self, root, key):
+        if root is None:
+            return None
+        if key == root.key:
+            return root
+        elif key < root.key:
+            return self.search(root.left, key)
+        else:
+            return self.search(root.right, key)
+
+    def min_value_node(self, node):
+        current = node
+        while current.left is not None:
+            current = current.left
+        return current
+
+    def delete(self, root, key):
+        if root is None:
+            return root
+        if key < root.key:
+            root.left = self.delete(root.left, key)
+        elif key > root.key:
+            root.right = self.delete(root.right, key)
+        else:
+            if root.left is None:
+                return root.right
+            elif root.right is None:
+                return root.left
+            temp = self.min_value_node(root.right)
+            root.key = temp.key
+            root.right = self.delete(root.right, temp.key)
+        return root
+
+    def inorder(self, root):
+        if root:
+            self.inorder(root.left)
+            print(root.key, end=" ")
+            self.inorder(root.right)
+
+    def preorder(self, root):
+        if root:
+            print(root.key, end=" ")
+            self.preorder(root.left)
+            self.preorder(root.right)
+
+    def postorder(self, root):
+        if root:
+            self.postorder(root.left)
+            self.postorder(root.right)
+            print(root.key, end=" ")
+
+if __name__ == "__main__":
+    bst = BST()
+    root = None
+    nums = [50, 30, 70, 20, 40, 60, 80]
+    for num in nums:
+        root = bst.insert(root, num)
+    print("Inorder traversal: ", end="")
+    bst.inorder(root)
+    print("\nPreorder traversal: ", end="")
+    bst.preorder(root)
+    print("\nPostorder traversal: ", end="")
+    bst.postorder(root)
+    key = 40
+    if bst.search(root, key):
+        print(f"\n\nKey {key} found in BST.")
+    else:
+        print(f"\n\nKey {key} not found in BST.")
+    root = bst.delete(root, 70)
+    print("\nInorder after deleting 70: ", end="")
+    bst.inorder(root)
